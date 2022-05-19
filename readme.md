@@ -10,7 +10,7 @@ An API Library written in java library which does the following:
 
 ### Example JSON file Screenshot
 
-![jsonfileexample](screenshots\1.jpg)
+![jsonfileexample](screenshots/1.jpg)
 
 ## Build Project using maven
 
@@ -40,4 +40,4 @@ mvn -B compile
 
 ### SonarQube,at the beginning, detect some code smells regarding System.out.println in Main class, but i marked it as non-important
 
-![SonarQube](screenshots\2.jpg)
+![SonarQube](screenshots/2.jpg)
