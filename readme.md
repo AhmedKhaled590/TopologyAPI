@@ -32,6 +32,10 @@ mvn -B compile
 - open Main.java (src/main/java/com/example/Main.java)
 - click run button
 
+### Running Tests Result
+
+![testsResult](screenshots\3.jpg)
+
 ## screenshot from sonarQube (Code analysis)
 
 ### SonarQube,at the beginning, detect some code smells regarding System.out.println in Main class, but i marked it as non-important

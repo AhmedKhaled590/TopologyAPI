@@ -17,7 +17,7 @@ import org.json.JSONException;
  */
 
 class TopologyAPI {
-    private ArrayList<Topology> topologies;
+    private static ArrayList<Topology> topologies = new ArrayList<Topology>();
     private static final String COMPONENTS = "components";
     private static final String NETLIST = "netlist";
 
@@ -26,8 +26,8 @@ class TopologyAPI {
      * @return topology object with the given id or null if not found
      */
 
-    private Topology getTopologyByID(String topologyId) {
-        for (Topology topology : this.topologies) {
+    private static Topology getTopologyByID(String topologyId) {
+        for (Topology topology : topologies) {
             if (topology.getId().equals(topologyId))
                 return topology;
         }
@@ -41,7 +41,7 @@ class TopologyAPI {
      * @throws IOException
      */
 
-    private String parseJsonFile(String fileName) throws IOException {
+    private static String parseJsonFile(String fileName) throws IOException {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
             StringBuilder stringBuilder = new StringBuilder();
             String str = bufferedReader.readLine();
@@ -63,7 +63,7 @@ class TopologyAPI {
      * @return name of the component
      */
 
-    private String getParameterName(JSONObject jsonObject, int index) throws JSONException {
+    private static String getParameterName(JSONObject jsonObject, int index) throws JSONException {
         Iterator<String> set = jsonObject.getJSONArray(COMPONENTS).getJSONObject(index).keys();
         String str = "";
         while (set.hasNext()) {
@@ -84,7 +84,7 @@ class TopologyAPI {
      * @return new created component object
      */
 
-    private Component createComponent(JSONObject topologyJsonObject, JSONObject component, int index)
+    private static Component createComponent(JSONObject topologyJsonObject, JSONObject component, int index)
             throws JSONException {
         String str1 = getParameterName(topologyJsonObject, index);
         String str2 = component.getString("type");
@@ -99,7 +99,7 @@ class TopologyAPI {
      */
 
     public TopologyAPI() {
-        this.topologies = new ArrayList<>();
+        // topologies = new ArrayList<>();
     }
 
     /**
@@ -112,26 +112,39 @@ class TopologyAPI {
      * @throws IOException, JSONException
      */
 
-    public boolean readJSON(String fileName) throws JSONException, IOException {
+    public static boolean readJSON(String fileName) throws JSONException, IOException {
         try {
-            String str1 = parseJsonFile(fileName);
-            JSONObject jSONObject = new JSONObject(str1);
-            String str2 = jSONObject.getString("id");
+            String fileContent = parseJsonFile(fileName);
+            JSONObject jSONObject = new JSONObject(fileContent);
+            String topologyId = jSONObject.getString("id");
+
+            if (getTopologyByID(topologyId) != null) {
+                return false;
+            }
+
             Component[] arrayOfComponent = new Component[jSONObject.getJSONArray(COMPONENTS).length()];
             for (byte b = 0; b < arrayOfComponent.length; b++) {
                 JSONObject jSONObject1 = jSONObject.getJSONArray(COMPONENTS).getJSONObject(b);
                 arrayOfComponent[b] = createComponent(jSONObject, jSONObject1, b);
             }
-            this.topologies.add(new Topology(str2, arrayOfComponent));
+            topologies.add(new Topology(topologyId, arrayOfComponent));
             return true;
         } catch (FileNotFoundException fileNotFoundException) {
-            throw new FileNotFoundException(fileNotFoundException.getMessage());
+            System.out.println(fileNotFoundException.getMessage());
+            return false;
         } catch (IOException iOException) {
-            throw new IOException(iOException.getMessage());
+            System.out.println(iOException.getMessage());
+            return false;
+        } catch (JSONException jsonException) {
+            System.out.println(jsonException.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
         }
     }
 
-    private void writeToJsonFile(String fileName, JSONObject jsonObject) throws IOException {
+    private static void writeToJsonFile(String fileName, JSONObject jsonObject) throws IOException {
         try (PrintWriter printWriter = new PrintWriter(new FileWriter(fileName + ".json"))) {
             printWriter.write(jsonObject.toString());
         } catch (Exception exception) {
@@ -149,7 +162,7 @@ class TopologyAPI {
      * @throws IOException
      */
 
-    public boolean writeJSON(String topologyId) throws IOException {
+    public static boolean writeJSON(String topologyId) throws IOException {
         try {
             JSONObject jSONObject = new JSONObject();
             jSONObject.put("id", topologyId);
@@ -181,7 +194,7 @@ class TopologyAPI {
      * @return Topology object with the given id or null if not found
      */
 
-    public Topology queryTopology(String topologyId) {
+    public static Topology queryTopology(String topologyId) {
         return getTopologyByID(topologyId);
     }
 
@@ -192,15 +205,15 @@ class TopologyAPI {
      * @return true if topology is successfully deleted, false otherwise
      */
 
-    public boolean deleteTopology(String topologyId) {
+    public static boolean deleteTopology(String topologyId) {
         Topology topology = getTopologyByID(topologyId);
         if (topology != null) {
-            ArrayList<Topology> arrayList = new ArrayList<>(this.topologies.size() - 1);
-            for (Topology topology1 : this.topologies) {
+            ArrayList<Topology> arrayList = new ArrayList<>(topologies.size() - 1);
+            for (Topology topology1 : topologies) {
                 if (!topology1.getId().equals(topologyId))
                     arrayList.add(topology1);
             }
-            this.topologies = arrayList;
+            topologies = arrayList;
             return true;
         }
         return false;
@@ -214,7 +227,7 @@ class TopologyAPI {
      *         found
      */
 
-    public Component[] queryDevices(String topologyId) {
+    public static Component[] queryDevices(String topologyId) {
         Topology topology = getTopologyByID(topologyId);
         if (topology != null)
             return topology.getComponents();
@@ -231,7 +244,7 @@ class TopologyAPI {
      *         found
      */
 
-    public ArrayList<Component> queryDevicesWithNetlistNode(String topologyId, String netlist) {
+    public static ArrayList<Component> queryDevicesWithNetlistNode(String topologyId, String netlist) {
         Topology topology = getTopologyByID(topologyId);
         if (topology != null) {
             Component[] arrayOfComponent = topology.getComponents();
@@ -251,7 +264,7 @@ class TopologyAPI {
      * @param topologyId
      */
 
-    public void printTopology(String topologyId) {
+    public static void printTopology(String topologyId) {
         Topology topology = getTopologyByID(topologyId);
         if (topology != null) {
             System.out.println("TopologyId: " + topology.getId());
@@ -264,6 +277,10 @@ class TopologyAPI {
         } else {
             System.out.println("Topology not found");
         }
+    }
+
+    public static int getTopologiesSize() {
+        return topologies.size();
     }
 
 }

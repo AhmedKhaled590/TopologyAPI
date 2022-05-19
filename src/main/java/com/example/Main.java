@@ -7,18 +7,24 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-            TopologyAPI topologyAPI = new TopologyAPI();
-            topologyAPI.readJSON("topology.json");
-            topologyAPI.readJSON("topology2.json");
+            boolean readState1 = TopologyAPI.readJSON("topology.json");
+            checkReadState(readState1);
+
+            boolean readState2 = TopologyAPI.readJSON("topology.json");
+            checkReadState(readState2);
+
+            boolean readState3 = TopologyAPI.readJSON("topology2.json");
+            checkReadState(readState3);
+
             System.out.println("************Topology 1: ***********************");
-            topologyAPI.printTopology("top1");
+            TopologyAPI.printTopology("top1");
 
             System.out.println("************Topology 2: ***********************");
-            topologyAPI.printTopology("top2");
+            TopologyAPI.printTopology("top2");
 
-            Component[] components = topologyAPI.queryDevices("top1");
+            Component[] components = TopologyAPI.queryDevices("top1");
 
-            ArrayList<Component> components0 = topologyAPI.queryDevicesWithNetlistNode("top1",
+            ArrayList<Component> components0 = TopologyAPI.queryDevicesWithNetlistNode("top1",
                     components[0].getNetlist());
             System.out.println(
                     "************Components connected to node " + components[0].getNetlist()
@@ -28,18 +34,18 @@ public class Main {
             }
 
             System.out.println("Writing to JSON file ...");
-            topologyAPI.writeJSON("top1");
+            TopologyAPI.writeJSON("top1");
 
             System.out.println("Writing to JSON file ...");
-            topologyAPI.writeJSON("top2");
+            TopologyAPI.writeJSON("top2");
 
             System.out.println("Deleting topology ...");
-            topologyAPI.deleteTopology("top1");
-            topologyAPI.printTopology("top1");
+            TopologyAPI.deleteTopology("top1");
+            TopologyAPI.printTopology("top1");
 
             System.out.println("Deleting topology ...");
-            topologyAPI.deleteTopology("top2");
-            topologyAPI.printTopology("top2");
+            TopologyAPI.deleteTopology("top2");
+            TopologyAPI.printTopology("top2");
 
         } catch (
 
@@ -47,6 +53,15 @@ public class Main {
             Logger logger = Logger.getLogger(Main.class.getName());
             logger.log(java.util.logging.Level.SEVERE, null, e);
         }
+    }
+
+    private static void checkReadState(boolean state) {
+        if (state) {
+            System.out.println("Topology read successfully");
+        } else {
+            System.out.println("Topology read failed");
+        }
+
     }
 
 }
