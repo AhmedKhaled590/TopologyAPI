@@ -34,7 +34,7 @@ mvn -B compile
 
 ### Running Tests Result
 
-![testsResult](screenshots\3.jpg)
+![testsResult](screenshots/3.jpg)
 
 ## screenshot from sonarQube (Code analysis)
 
